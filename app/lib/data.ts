@@ -18,12 +18,12 @@ export async function fetchRevenue() {
     // Artificially delay a response for demo purposes.
     // Don't do this in production :)
 
-    // console.log('Fetching revenue data...');
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    console.log('Fetching revenue data...');
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const data = await sql<Revenue>`SELECT * FROM revenue`;
 
-    // console.log('Data fetch completed after 3 seconds.');
+    console.log('Data fetch completed after 3 seconds.');
 
     return data.rows;
   } catch (error) {
@@ -64,6 +64,18 @@ export async function fetchCardData() {
          SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
          FROM invoices`;
 
+    // Parallel data fetching
+    // A common way to avoid waterfalls is to initiate all data requests 
+    // at the same time - in parallel.
+
+    // In JavaScript, you can use the Promise.all() or Promise.allSettled()
+    // functions to initiate all promises at the same time. 
+    // For example, in data.ts, we're using Promise.all() 
+
+    // However, there is one disadvantage of relying only on this
+    // JavaScript pattern: 
+    // what happens if one data request is slower than all the others?
+    
     const data = await Promise.all([
       invoiceCountPromise,
       customerCountPromise,
